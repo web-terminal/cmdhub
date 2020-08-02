@@ -1,0 +1,7 @@
+{
+    "gitbub": {
+        "version": "1.0.0",
+        "main": "github/main.js",
+        "site": "github.com"
+    }
+}
