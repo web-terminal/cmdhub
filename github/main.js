@@ -2,7 +2,7 @@ var githubCmd = function() {
     this.desc = 'gitbub commands.';
     this.subCmds = {
         ls: {
-            desc: "show repos."
+            desc: "show repos.",
             exec: function(command, cmdwin) {
                 console.log('github ls command.');
             }
