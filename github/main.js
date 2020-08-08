@@ -8,15 +8,15 @@ var githubCmd = function() {
             }
         }
     };
-    this.Exec = function(command, cmdwin) {
+    this.Exec = function(command, terminal) {
         if (command.content.length > 0) {
             if (this.subCmds.hasOwnProperty(command.content[0])) {
-                this.subCmds[command.content[0]].exec(command, cmdwin);
+                this.subCmds[command.content[0]].exec(command, terminal);
             } else {
-                cmdwin.displayErrorOutput("invalid command "+command.content[0]);
+                terminal.displayErrorOutput("invalid command "+command.content[0]);
             }
         } else {
-            cmdwin.displayErrorOutput("please input sub command. like: browser bookmark <first content>");
+            terminal.displayErrorOutput("please input sub command. like: github ls <first content>");
         }
     }
 }
