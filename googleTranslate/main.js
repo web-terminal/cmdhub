@@ -79,7 +79,7 @@ var googleTranslateCmd = function () {
                                 let examples = self.getPropertyVal(data.examples, 'example', [])
                                 dict += '<br/>Examples<br/>'
                                 for (let i in examples) {
-                                    dict += '- <a class="command-exec" data-type="base64" data-command="' + window.btoa(unescape(encodeURIComponent('translate `' + $('<a>' + examples[i]['text'] + '</a>').text() + '`'))) + '">' + examples[i]['text'] + '</a><br/>';
+                                    dict += '- <a class="command-exec" data-type="base64" data-command="' + window.btoa(unescape(encodeURIComponent('googleTranslate `' + $('<a>' + examples[i]['text'] + '</a>').text() + '`'))) + '">' + examples[i]['text'] + '</a><br/>';
                                 }
                             }
                             sentences = dict;
