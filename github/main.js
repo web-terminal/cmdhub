@@ -3,9 +3,12 @@ var githubCmd = function() {
     this.subCmds = {
         ls: {
             desc: "show repos.",
-            Exec: function(command, cmdwin) {
+            Exec: function(command, terminal) {
                 console.log('github ls command.');
             }
         }
+    }
+    this.TabComplete = function(commandline) {
+        
     }
 }
