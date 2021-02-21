@@ -1,6 +1,9 @@
 var mousedoCmd = function () {
-
+    this.Exec = function (command, terminal) {
+        terminal.displayOutput("Try holding down the right mouse button, don’t let go, and move.");
+    }
 }
+
 mousedoCmd.shadowRoot = null;
 mousedoCmd.move_direct = '';
 mousedoCmd.move_direct_ins = '';
@@ -29,20 +32,17 @@ mousedoCmd.mdp_p_y = 0;
 mousedoCmd.last_mouse = { x: 0, y: 0 };
 mousedoCmd.mouse = { x: 0, y: 0 };
 
-mousedoCmd.activeScrollBar = '';
 mousedoCmd.ev = null;	// onmousedown记录的事件信息
-mousedoCmd.tabActive = false;
-mousedoCmd.navActive = false;
 mousedoCmd.isMouseDown = 0;
 mousedoCmd.isActiveCanvas = false
 
-mousedoCmd.initEvents = function () {
+mousedoCmd.initEvents = function (terminal) {
 
     document.addEventListener('contextmenu', function (e) {
         if (mousedoCmd.move_direct) {
             e.preventDefault();
         } else {
-            mousedoCmd.onmouseupHandle()
+            mousedoCmd.onmouseupHandle(terminal)
         }
     })
 
@@ -98,7 +98,7 @@ mousedoCmd.initEvents = function () {
                     mousedoCmd.last_mouse = { x: ev.clientX - canvas.offsetLeft, y: ev.clientY - canvas.offsetTop };
                     mousedoCmd.mouse = { x: ev.clientX - canvas.offsetLeft, y: ev.clientY - canvas.offsetTop };
 
-                    mousedoCmd.onPaint()
+                    onPaint()
 
                     window.context.lineJoin = 'round';
                     window.context.lineCap = 'round';
@@ -135,9 +135,9 @@ mousedoCmd.initEvents = function () {
                     }
 
                     if (mousedoCmd.hasSelection) {
-                        mousedoCmd.checkSelectionMoveIns(mousedoCmd.move_direct_ins, 'tip')
+                        mousedoCmd.checkSelectionMoveIns(terminal, mousedoCmd.move_direct_ins, 'tip')
                     } else {
-                        mousedoCmd.checkMoveIns(mousedoCmd.move_direct_ins, 'tip')
+                        mousedoCmd.checkMoveIns(terminal, mousedoCmd.move_direct_ins, 'tip')
                     }
 
                     mousedoCmd.last_mouse.x = mousedoCmd.mouse.x
@@ -146,7 +146,7 @@ mousedoCmd.initEvents = function () {
             });
 
             document.addEventListener('mouseup', function (e) {
-                mousedoCmd.onmouseupHandle()
+                mousedoCmd.onmouseupHandle(terminal)
             });
 
 
@@ -184,7 +184,7 @@ mousedoCmd.initName = function () {
     mousedoCmd.hasSelection = false;
 }
 
-mousedoCmd.onmouseupHandle = function () {
+mousedoCmd.onmouseupHandle = function (terminal) {
     mousedoCmd.isMouseDown = 0;
     mousedoCmd.isActiveCanvas = false;
     document.onmousemove = null
@@ -194,9 +194,9 @@ mousedoCmd.onmouseupHandle = function () {
     mousedoCmd.cleanCanvas();
 
     if (mousedoCmd.hasSelection) {
-        mousedoCmd.checkSelectionMoveIns(mousedoCmd.move_direct_ins, 'ins')
+        mousedoCmd.checkSelectionMoveIns(terminal, mousedoCmd.move_direct_ins, 'ins')
     } else {
-        mousedoCmd.checkMoveIns(mousedoCmd.move_direct_ins, 'ins')
+        mousedoCmd.checkMoveIns(terminal, mousedoCmd.move_direct_ins, 'ins')
     }
 
     setTimeout(function () {
@@ -265,7 +265,7 @@ mousedoCmd.api_locales = function (text) {
     return locales.hasOwnProperty(lang) ? (locales[lang].hasOwnProperty(text) ? locales[lang][text] : text) : text;
 }
 
-mousedoCmd.checkMoveIns = function (ins, type) {
+mousedoCmd.checkMoveIns = function (terminal, ins, type) {
     if (!window.weupMouseoverDivTip) return false
     if (type == 'tip') {
         weupMouseoverDivTip.style.display = 'block'
@@ -277,7 +277,7 @@ mousedoCmd.checkMoveIns = function (ins, type) {
         case 'l':
             // 后退
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = l + '<br/>' + mousedoCmd.api_locales('Back')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.l + '<br/>' + mousedoCmd.api_locales('Back')
             } else if (type == 'ins') {
                 window.history.go(-1);
             }
@@ -285,7 +285,7 @@ mousedoCmd.checkMoveIns = function (ins, type) {
         case 'u':
             // 向上翻页
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = u + '<br/>' + mousedoCmd.api_locales('Page up')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.u + '<br/>' + mousedoCmd.api_locales('Page up')
             } else if (type == 'ins') {
                 document.documentElement.scrollTop = document.documentElement.scrollTop - window.innerHeight + 80;
             }
@@ -293,88 +293,86 @@ mousedoCmd.checkMoveIns = function (ins, type) {
         case 'r':
             // 前进
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = r + '<br/>' + mousedoCmd.api_locales('Forward')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.r + '<br/>' + mousedoCmd.api_locales('Forward')
             } else if (type == 'ins') {
                 window.history.go(1);
             }
             break;
         case 'd':
-            // getUserTabs(ins, type)
             // 向下翻页
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = d + '<br/>' + mousedoCmd.api_locales('Page down')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.d + '<br/>' + mousedoCmd.api_locales('Page down')
             } else if (type == 'ins') {
                 document.documentElement.scrollTop = document.documentElement.scrollTop + window.innerHeight - 80;
             }
             break;
         case 'lu':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = lu + '<br/>' + mousedoCmd.api_locales('Close all tabs')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.lu + '<br/>' + mousedoCmd.api_locales('Close all tabs')
             } else if (type == 'ins') {
-                api_send_message({ type: 'tab', action: 'closeAllTabs' })
+                terminal.handleInput('tab close -a');
             }
             break;
         case 'ld':
             if (type == 'tip') {
                 // weupMouseoverDivTip.innerHTML = '左、下<br/>停止'
-                weupMouseoverDivTip.innerHTML = ld + '<br/>' + mousedoCmd.api_locales('Close other labels')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.ld + '<br/>' + mousedoCmd.api_locales('Close other labels')
             } else if (type == 'ins') {
-                api_send_message({ type: 'tab', action: 'closeOtherTabs' })
+                terminal.handleInput('tab close -o');
             }
             break;
         case 'ul':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = ul + '<br/>' + mousedoCmd.api_locales('The former label')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.ul + '<br/>' + mousedoCmd.api_locales('The former label')
             } else if (type == 'ins') {
-                api_send_message({ type: 'tab', action: 'prevTab' })
+                terminal.handleInput('tab skip -s=-1');
             }
             break;
         case 'ur':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = ur + '<br/>' + mousedoCmd.api_locales('The latter label')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.ur + '<br/>' + mousedoCmd.api_locales('The latter label')
             } else if (type == 'ins') {
-                api_send_message({ type: 'tab', action: 'nextTab' })
+                terminal.handleInput('tab skip');
             }
             break;
         case 'ru':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = ru + '<br/>' + mousedoCmd.api_locales('Label pages')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.ru + '<br/>' + mousedoCmd.api_locales('Label pages')
             } else if (type == 'ins') {
-                // api_send_message({type: 'tab', action: 'newTab'})
-                // tagsEvent()
+                terminal.handleInput('tab new');
             }
             break;
         case 'rd':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = rd + '<br/>' + mousedoCmd.api_locales('Reload (refresh)')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.rd + '<br/>' + mousedoCmd.api_locales('Reload (refresh)')
             } else if (type == 'ins') {
                 location.reload();
             }
             break;
         case 'dl':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = dl + '<br/>' + mousedoCmd.api_locales('Copy tabs')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.dl + '<br/>' + mousedoCmd.api_locales('Copy tabs')
             } else if (type == 'ins') {
-                api_send_message({ type: 'tab', action: 'copyTab' })
+                terminal.handleInput('tab copy');
             }
             break;
         case 'dr':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = dr + '<br/>' + mousedoCmd.api_locales('Close the tab')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.dr + '<br/>' + mousedoCmd.api_locales('Close the tab')
             } else if (type == 'ins') {
-                api_send_message({ type: 'tab', action: 'deleteTab' })
+                terminal.handleInput('tab close');
             }
             break;
         case 'du':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = d + u + '<br/>' + mousedoCmd.api_locales('Scroll to the top of the page')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.d + mousedoCmd.u + '<br/>' + mousedoCmd.api_locales('Scroll to the top of the page')
             } else if (type == 'ins') {
                 document.documentElement.scrollTop = 0;
             }
             break;
         case 'ud':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = u + d + '<br/>' + mousedoCmd.api_locales('Scroll to the bottom of the page')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.u + mousedoCmd.d + '<br/>' + mousedoCmd.api_locales('Scroll to the bottom of the page')
             } else if (type == 'ins') {
                 document.documentElement.scrollTop = document.documentElement.scrollHeight;
             }
@@ -387,7 +385,7 @@ mousedoCmd.checkMoveIns = function (ins, type) {
     }
 }
 
-function checkSelectionMoveIns(ins, type) {
+function checkSelectionMoveIns(terminal, ins, type) {
     if (!window.weupMouseoverDivTip) return false
     if (type == 'tip') {
         weupMouseoverDivTip.style.display = 'block'
@@ -399,7 +397,7 @@ function checkSelectionMoveIns(ins, type) {
         // case 'u':
         //     // 向上翻页
         //     if (type == 'tip') {
-        //         weupMouseoverDivTip.innerHTML = u + '<br/>' + mousedoCmd.api_locales('mouseSearchTip')
+        //         weupMouseoverDivTip.innerHTML = mousedoCmd.u + '<br/>' + mousedoCmd.api_locales('mouseSearchTip')
         //     } else if (type == 'ins') {
         //         api_send_message({ type: 'page', action: 'search', text: window.getSelection().toString() })
         //     }
@@ -407,7 +405,7 @@ function checkSelectionMoveIns(ins, type) {
         // case 'r':
         //     // 前进
         //     if (type == 'tip') {
-        //         weupMouseoverDivTip.innerHTML = r + '<br/>' + mousedoCmd.api_locales('note')
+        //         weupMouseoverDivTip.innerHTML = mousedoCmd.r + '<br/>' + mousedoCmd.api_locales('note')
         //     } else if (type == 'ins') {
         //         showNoteTip()
         //     }
@@ -415,9 +413,10 @@ function checkSelectionMoveIns(ins, type) {
         case 'd':
             // 向下翻页
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = d + '<br/>' + mousedoCmd.api_locales('Translate')
+                weupMouseoverDivTip.innerHTML = mousedoCmd.d + '<br/>' + mousedoCmd.api_locales('Translate')
             } else if (type == 'ins') {
-                translateEvent(window.getSelection().toString());
+                terminal.handleInput('translate `' + window.getSelection().toString() + '` -t en');
+                terminal.toggleCmdWin('show');
             }
             break;
         default:
