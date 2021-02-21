@@ -1,0 +1,7 @@
+{
+    "version": "1.0.0",
+    "main": "main.js",
+    "site": "*",
+    "init_func": "mousedoCmd.initEvents",
+    "index_func": "mousedoCmd"
+}
