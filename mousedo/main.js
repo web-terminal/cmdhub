@@ -73,7 +73,7 @@ mousedoCmd.initEvents = function (terminal) {
 
             mousedoCmd.mouse = { x: mousedoCmd.ev.clientX, y: mousedoCmd.ev.clientY };
 
-            document.addEventListener('mousemove', function (e) {
+            document.onmousemove = function (e) {
                 let ev = e || window.event;
 
                 if (!mousedoCmd.isActiveCanvas && (Math.abs(ev.clientX - mousedoCmd.mouse.x) > 0 || Math.abs(ev.clientY - mousedoCmd.mouse.y) > 0)) {
@@ -143,7 +143,7 @@ mousedoCmd.initEvents = function (terminal) {
                     mousedoCmd.last_mouse.x = mousedoCmd.mouse.x
                     mousedoCmd.last_mouse.y = mousedoCmd.mouse.y
                 }
-            });
+            };
 
             document.addEventListener('mouseup', function (e) {
                 mousedoCmd.onmouseupHandle(terminal)
@@ -242,7 +242,7 @@ mousedoCmd.showTips = function (tips) {
 mousedoCmd.api_locales = function (text) {
     let lang = api_locale_language();
     let locales = {
-        "zh_CN": {
+        "zh-CN": {
             "Back": "后退",
             "Page up": "向上翻页",
             "Forward": "前进",
