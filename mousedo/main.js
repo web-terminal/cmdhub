@@ -145,9 +145,9 @@ mousedoCmd.initEvents = function (terminal) {
                 }
             };
 
-            document.addEventListener('mouseup', function (e) {
+            document.onmouseup = function (e) {
                 mousedoCmd.onmouseupHandle(terminal)
-            });
+            };
 
 
         }
