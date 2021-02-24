@@ -388,7 +388,7 @@ mousedoCmd.checkMoveIns = function (terminal, ins, type) {
     }
 }
 
-function checkSelectionMoveIns(terminal, ins, type) {
+mousedoCmd.checkSelectionMoveIns = function(terminal, ins, type) {
     if (!mousedoCmd.weupMouseoverDivTip) return false
     if (type == 'tip') {
         mousedoCmd.weupMouseoverDivTip.style.display = 'block'
