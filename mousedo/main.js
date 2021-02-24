@@ -7,6 +7,8 @@ var mousedoCmd = function () {
 mousedoCmd.shadowRoot = null;
 mousedoCmd.move_direct = '';
 mousedoCmd.move_direct_ins = '';
+mousedoCmd.canvas = null;
+mousedoCmd.context = null;
 
 mousedoCmd.u = '<svg style="width:50px;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="4307"><path d="M512 85.333333l249.6 298.666667H262.4z" fill="#fff" p-id="4308"></path><path d="M426.666667 320h170.666666v576h-170.666666z" fill="#fff" p-id="4309"></path></svg>'
 mousedoCmd.d = '<svg style="width:50px;" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1666"><path d="M512 938.666667L262.4 640h499.2z" fill="#fff" p-id="1667"></path><path d="M426.666667 128h170.666666v576h-170.666666z" fill="#fff" p-id="1668"></path></svg>'
@@ -34,7 +36,8 @@ mousedoCmd.mouse = { x: 0, y: 0 };
 
 mousedoCmd.ev = null;	// onmousedown记录的事件信息
 mousedoCmd.isMouseDown = 0;
-mousedoCmd.isActiveCanvas = false
+mousedoCmd.isActiveCanvas = false;
+mousedoCmd.weupMouseoverDivTip = null;
 
 mousedoCmd.initEvents = function (terminal) {
 
@@ -64,11 +67,11 @@ mousedoCmd.initEvents = function (terminal) {
             mousedoCmd.cleanCanvas()
 
             let onPaint = function () {
-                if (!window.context) return false;
-                window.context.beginPath();
-                window.context.moveTo(mousedoCmd.last_mouse.x, mousedoCmd.last_mouse.y);
-                window.context.lineTo(mousedoCmd.mouse.x, mousedoCmd.mouse.y);
-                window.context.stroke();
+                if (!mousedoCmd.context) return false;
+                mousedoCmd.context.beginPath();
+                mousedoCmd.context.moveTo(mousedoCmd.last_mouse.x, mousedoCmd.last_mouse.y);
+                mousedoCmd.context.lineTo(mousedoCmd.mouse.x, mousedoCmd.mouse.y);
+                mousedoCmd.context.stroke();
             };
 
             mousedoCmd.mouse = { x: mousedoCmd.ev.clientX, y: mousedoCmd.ev.clientY };
@@ -80,30 +83,30 @@ mousedoCmd.initEvents = function (terminal) {
                     if (window.getSelection().toString()) {
                         mousedoCmd.hasSelection = window.getSelection().toString();
                     }
-                    window.weupMouseoverDivTip = document.createElement("tips");
-                    window.canvas = document.createElement("canvas");
-                    window.context = canvas.getContext('2d')
+                    mousedoCmd.weupMouseoverDivTip = document.createElement("tips");
+                    mousedoCmd.canvas = document.createElement("canvas");
+                    mousedoCmd.context = mousedoCmd.canvas.getContext('2d')
 
-                    weupMouseoverDivTip.setAttribute('id', 'md-tip')
-                    weupMouseoverDivTip.setAttribute('style', 'font-size:16px;position:fixed;top:110px;left:45%;width:150px;background: rgba(0,0,0,0.9) none repeat scroll !important;color: #fff;text-align:center;padding:10px 10px;z-index: 99999998;display:none;')
+                    mousedoCmd.weupMouseoverDivTip.setAttribute('id', 'md-tip')
+                    mousedoCmd.weupMouseoverDivTip.setAttribute('style', 'font-size:16px;position:fixed;top:110px;left:45%;width:150px;background: rgba(0,0,0,0.9) none repeat scroll !important;color: #fff;text-align:center;padding:10px 10px;z-index: 99999998;display:none;')
 
-                    window.canvas.setAttribute('id', 'md-canvas')
-                    window.canvas.setAttribute('width', window.innerWidth)
-                    window.canvas.setAttribute('height', window.innerHeight)
-                    window.canvas.setAttribute('style', 'position:fixed;top:0px;left:0px;z-index:9999999999;background-color:rgba(255,255,255,0.01);')
+                    mousedoCmd.canvas.setAttribute('id', 'md-canvas')
+                    mousedoCmd.canvas.setAttribute('width', window.innerWidth)
+                    mousedoCmd.canvas.setAttribute('height', window.innerHeight)
+                    mousedoCmd.canvas.setAttribute('style', 'position:fixed;top:0px;left:0px;z-index:9999999999;background-color:rgba(255,255,255,0.01);')
 
-                    shadowRoot.appendChild(canvas)
-                    shadowRoot.appendChild(weupMouseoverDivTip)
+                    mousedoCmd.shadowRoot.appendChild(mousedoCmd.canvas)
+                    mousedoCmd.shadowRoot.appendChild(mousedoCmd.weupMouseoverDivTip)
 
-                    mousedoCmd.last_mouse = { x: ev.clientX - canvas.offsetLeft, y: ev.clientY - canvas.offsetTop };
-                    mousedoCmd.mouse = { x: ev.clientX - canvas.offsetLeft, y: ev.clientY - canvas.offsetTop };
+                    mousedoCmd.last_mouse = { x: ev.clientX - mousedoCmd.canvas.offsetLeft, y: ev.clientY - mousedoCmd.canvas.offsetTop };
+                    mousedoCmd.mouse = { x: ev.clientX - mousedoCmd.canvas.offsetLeft, y: ev.clientY - mousedoCmd.canvas.offsetTop };
 
                     onPaint()
 
-                    window.context.lineJoin = 'round';
-                    window.context.lineCap = 'round';
-                    window.context.lineWidth = 5;
-                    window.context.strokeStyle = "#07059a";
+                    mousedoCmd.context.lineJoin = 'round';
+                    mousedoCmd.context.lineCap = 'round';
+                    mousedoCmd.context.lineWidth = 5;
+                    mousedoCmd.context.strokeStyle = "#07059a";
 
                     mousedoCmd.isActiveCanvas = true
                 }
@@ -189,7 +192,7 @@ mousedoCmd.onmouseupHandle = function (terminal) {
     mousedoCmd.isActiveCanvas = false;
     document.onmousemove = null
     document.onmouseup = null
-    window.canvas && window.context.clearRect(0, 0, window.canvas.width, window.canvas.height);
+    mousedoCmd.canvas && mousedoCmd.context.clearRect(0, 0, mousedoCmd.canvas.width, mousedoCmd.canvas.height);
 
     mousedoCmd.cleanCanvas();
 
@@ -208,10 +211,10 @@ mousedoCmd.onmouseupHandle = function (terminal) {
 mousedoCmd.cleanCanvas = function () {
     if (mousedoCmd.shadowRoot) {
         if (mousedoCmd.shadowRoot.getElementById('md-canvas')) {
-            mousedoCmd.shadowRoot.removeChild(window.canvas);
+            mousedoCmd.shadowRoot.removeChild(mousedoCmd.canvas);
         }
         if (mousedoCmd.shadowRoot.getElementById('md-tip')) {
-            mousedoCmd.shadowRoot.removeChild(window.weupMouseoverDivTip);
+            mousedoCmd.shadowRoot.removeChild(mousedoCmd.weupMouseoverDivTip);
         }
     }
 }
@@ -219,24 +222,24 @@ mousedoCmd.cleanCanvas = function () {
 mousedoCmd.switchMouseoverDivTip = function (onoff, text) {
     if (onoff) {
         if (!mousedoCmd.shadowRoot.getElementById('md-tip')) {
-            window.weupMouseoverDivTip = document.createElement("tips");
-            weupMouseoverDivTip.setAttribute('id', 'md-tip')
-            weupMouseoverDivTip.setAttribute('style', 'font-size:16px;position:fixed;top:110px;left:45%;width:150px;background: rgba(0,0,0,0.6) none repeat scroll !important;color: #fff;text-align:center;padding:10px 10px;z-index: 99999998;')
-            mousedoCmd.shadowRoot.appendChild(weupMouseoverDivTip)
+            mousedoCmd.weupMouseoverDivTip = document.createElement("tips");
+            mousedoCmd.weupMouseoverDivTip.setAttribute('id', 'md-tip')
+            mousedoCmd.weupMouseoverDivTip.setAttribute('style', 'font-size:16px;position:fixed;top:110px;left:45%;width:150px;background: rgba(0,0,0,0.6) none repeat scroll !important;color: #fff;text-align:center;padding:10px 10px;z-index: 99999998;')
+            mousedoCmd.shadowRoot.appendChild(mousedoCmd.weupMouseoverDivTip)
         }
-        weupMouseoverDivTip.style.display = 'block'
-        weupMouseoverDivTip.innerHTML = text
+        mousedoCmd.weupMouseoverDivTip.style.display = 'block'
+        mousedoCmd.weupMouseoverDivTip.innerHTML = text
     } else {
         if (mousedoCmd.shadowRoot.getElementById('md-tip')) {
-            weupMouseoverDivTip.style.display = 'none'
-            mousedoCmd.shadowRoot.removeChild(window.weupMouseoverDivTip);
+            mousedoCmd.weupMouseoverDivTip.style.display = 'none'
+            mousedoCmd.shadowRoot.removeChild(mousedoCmd.weupMouseoverDivTip);
         }
     }
 }
 
 mousedoCmd.showTips = function (tips) {
-    weupMouseoverDivTip.style.display = 'block'
-    weupMouseoverDivTip.innerHTML = tips
+    mousedoCmd.weupMouseoverDivTip.style.display = 'block'
+    mousedoCmd.weupMouseoverDivTip.innerHTML = tips
 }
 
 mousedoCmd.api_locales = function (text) {
@@ -266,18 +269,18 @@ mousedoCmd.api_locales = function (text) {
 }
 
 mousedoCmd.checkMoveIns = function (terminal, ins, type) {
-    if (!window.weupMouseoverDivTip) return false
+    if (!mousedoCmd.weupMouseoverDivTip) return false
     if (type == 'tip') {
-        weupMouseoverDivTip.style.display = 'block'
+        mousedoCmd.weupMouseoverDivTip.style.display = 'block'
     } else if (type == 'ins') {
-        weupMouseoverDivTip.style.display = 'none'
+        mousedoCmd.weupMouseoverDivTip.style.display = 'none'
     }
 
     switch (ins) {
         case 'l':
             // 后退
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.l + '<br/>' + mousedoCmd.api_locales('Back')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.l + '<br/>' + mousedoCmd.api_locales('Back')
             } else if (type == 'ins') {
                 window.history.go(-1);
             }
@@ -285,7 +288,7 @@ mousedoCmd.checkMoveIns = function (terminal, ins, type) {
         case 'u':
             // 向上翻页
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.u + '<br/>' + mousedoCmd.api_locales('Page up')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.u + '<br/>' + mousedoCmd.api_locales('Page up')
             } else if (type == 'ins') {
                 document.documentElement.scrollTop = document.documentElement.scrollTop - window.innerHeight + 80;
             }
@@ -293,7 +296,7 @@ mousedoCmd.checkMoveIns = function (terminal, ins, type) {
         case 'r':
             // 前进
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.r + '<br/>' + mousedoCmd.api_locales('Forward')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.r + '<br/>' + mousedoCmd.api_locales('Forward')
             } else if (type == 'ins') {
                 window.history.go(1);
             }
@@ -301,14 +304,14 @@ mousedoCmd.checkMoveIns = function (terminal, ins, type) {
         case 'd':
             // 向下翻页
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.d + '<br/>' + mousedoCmd.api_locales('Page down')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.d + '<br/>' + mousedoCmd.api_locales('Page down')
             } else if (type == 'ins') {
                 document.documentElement.scrollTop = document.documentElement.scrollTop + window.innerHeight - 80;
             }
             break;
         case 'lu':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.lu + '<br/>' + mousedoCmd.api_locales('Close all tabs')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.lu + '<br/>' + mousedoCmd.api_locales('Close all tabs')
             } else if (type == 'ins') {
                 terminal.handleInput('tab close -a');
             }
@@ -316,88 +319,88 @@ mousedoCmd.checkMoveIns = function (terminal, ins, type) {
         case 'ld':
             if (type == 'tip') {
                 // weupMouseoverDivTip.innerHTML = '左、下<br/>停止'
-                weupMouseoverDivTip.innerHTML = mousedoCmd.ld + '<br/>' + mousedoCmd.api_locales('Close other labels')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.ld + '<br/>' + mousedoCmd.api_locales('Close other labels')
             } else if (type == 'ins') {
                 terminal.handleInput('tab close -o');
             }
             break;
         case 'ul':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.ul + '<br/>' + mousedoCmd.api_locales('The former label')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.ul + '<br/>' + mousedoCmd.api_locales('The former label')
             } else if (type == 'ins') {
                 terminal.handleInput('tab skip -s=-1');
             }
             break;
         case 'ur':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.ur + '<br/>' + mousedoCmd.api_locales('The latter label')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.ur + '<br/>' + mousedoCmd.api_locales('The latter label')
             } else if (type == 'ins') {
                 terminal.handleInput('tab skip');
             }
             break;
         case 'ru':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.ru + '<br/>' + mousedoCmd.api_locales('Label pages')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.ru + '<br/>' + mousedoCmd.api_locales('Label pages')
             } else if (type == 'ins') {
                 terminal.handleInput('tab new');
             }
             break;
         case 'rd':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.rd + '<br/>' + mousedoCmd.api_locales('Reload (refresh)')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.rd + '<br/>' + mousedoCmd.api_locales('Reload (refresh)')
             } else if (type == 'ins') {
                 location.reload();
             }
             break;
         case 'dl':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.dl + '<br/>' + mousedoCmd.api_locales('Copy tabs')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.dl + '<br/>' + mousedoCmd.api_locales('Copy tabs')
             } else if (type == 'ins') {
                 terminal.handleInput('tab copy');
             }
             break;
         case 'dr':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.dr + '<br/>' + mousedoCmd.api_locales('Close the tab')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.dr + '<br/>' + mousedoCmd.api_locales('Close the tab')
             } else if (type == 'ins') {
                 terminal.handleInput('tab close');
             }
             break;
         case 'du':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.d + mousedoCmd.u + '<br/>' + mousedoCmd.api_locales('Scroll to the top of the page')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.d + mousedoCmd.u + '<br/>' + mousedoCmd.api_locales('Scroll to the top of the page')
             } else if (type == 'ins') {
                 document.documentElement.scrollTop = 0;
             }
             break;
         case 'ud':
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.u + mousedoCmd.d + '<br/>' + mousedoCmd.api_locales('Scroll to the bottom of the page')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.u + mousedoCmd.d + '<br/>' + mousedoCmd.api_locales('Scroll to the bottom of the page')
             } else if (type == 'ins') {
                 document.documentElement.scrollTop = document.documentElement.scrollHeight;
             }
             break;
         default:
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = '<br/>' + mousedoCmd.api_locales('Invalid action')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = '<br/>' + mousedoCmd.api_locales('Invalid action')
             }
             break;
     }
 }
 
 function checkSelectionMoveIns(terminal, ins, type) {
-    if (!window.weupMouseoverDivTip) return false
+    if (!mousedoCmd.weupMouseoverDivTip) return false
     if (type == 'tip') {
-        weupMouseoverDivTip.style.display = 'block'
+        mousedoCmd.weupMouseoverDivTip.style.display = 'block'
     } else if (type == 'ins') {
-        weupMouseoverDivTip.style.display = 'none'
+        mousedoCmd.weupMouseoverDivTip.style.display = 'none'
     }
 
     switch (ins) {
         // case 'u':
         //     // 向上翻页
         //     if (type == 'tip') {
-        //         weupMouseoverDivTip.innerHTML = mousedoCmd.u + '<br/>' + mousedoCmd.api_locales('mouseSearchTip')
+        //         mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.u + '<br/>' + mousedoCmd.api_locales('mouseSearchTip')
         //     } else if (type == 'ins') {
         //         api_send_message({ type: 'page', action: 'search', text: window.getSelection().toString() })
         //     }
@@ -405,7 +408,7 @@ function checkSelectionMoveIns(terminal, ins, type) {
         // case 'r':
         //     // 前进
         //     if (type == 'tip') {
-        //         weupMouseoverDivTip.innerHTML = mousedoCmd.r + '<br/>' + mousedoCmd.api_locales('note')
+        //         mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.r + '<br/>' + mousedoCmd.api_locales('note')
         //     } else if (type == 'ins') {
         //         showNoteTip()
         //     }
@@ -413,7 +416,7 @@ function checkSelectionMoveIns(terminal, ins, type) {
         case 'd':
             // 向下翻页
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = mousedoCmd.d + '<br/>' + mousedoCmd.api_locales('Translate')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = mousedoCmd.d + '<br/>' + mousedoCmd.api_locales('Translate')
             } else if (type == 'ins') {
                 terminal.handleInput('translate `' + window.getSelection().toString() + '` -t en');
                 terminal.toggleCmdWin('show');
@@ -421,7 +424,7 @@ function checkSelectionMoveIns(terminal, ins, type) {
             break;
         default:
             if (type == 'tip') {
-                weupMouseoverDivTip.innerHTML = '<br/>' + mousedoCmd.api_locales('mousemoveNullTip')
+                mousedoCmd.weupMouseoverDivTip.innerHTML = '<br/>' + mousedoCmd.api_locales('mousemoveNullTip')
             }
             break;
     }
