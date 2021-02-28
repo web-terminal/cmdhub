@@ -1,0 +1,7 @@
+{
+    "version": "1.0.0",
+    "main": "main.js",
+    "site": "*",
+    "init_func": "vinsCmd.initEvents",
+    "index_func": "vinsCmd"
+}
